@@ -14,4 +14,4 @@ RUN uv sync --locked
 EXPOSE 8080
 
 # Run the application.
-CMD ["uv", "run", "python", "server.py", "--host", "0.0.0.0"]
+CMD ["sh", "-c", "uv run uvicorn src.server:app --host 0.0.0.0 --port ${PORT:-8080}"]
