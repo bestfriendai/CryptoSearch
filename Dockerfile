@@ -19,8 +19,9 @@ COPY . .
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
 
-EXPOSE 8080
+EXPOSE $PORT
 
 # Run the application
-CMD ["python", "server.py", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "python server.py --host 0.0.0.0 --port $PORT"]
