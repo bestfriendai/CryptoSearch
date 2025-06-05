@@ -73,18 +73,47 @@ BASIC_MODEL:
 
 DeerFlow supports the integration of OpenRouter models. You can refer to [litellm OpenRouter](https://docs.litellm.ai/docs/providers/openrouter). To use OpenRouter models, you need to:
 1. Obtain the OPENROUTER_API_KEY from OpenRouter (https://openrouter.ai/) and set it in the environment variable.
-2. Add the `openrouter/` prefix before the model name.
-3. Configure the correct OpenRouter base URL.
+2. Configure the correct OpenRouter base URL and model name.
+3. You can configure models either via `conf.yaml` or environment variables (environment variables take precedence).
 
-The following is a configuration example for using OpenRouter models:
-1. Configure OPENROUTER_API_KEY in the environment variable (such as the `.env` file)
-```ini
-OPENROUTER_API_KEY=""
-```
-2. Set the model name in `conf.yaml`
+#### Method 1: Using conf.yaml
 ```yaml
 BASIC_MODEL:
-  model: "openrouter/google/palm-2-chat-bison"
+  base_url: "https://openrouter.ai/api/v1"
+  model: "meta-llama/llama-3.2-1b-instruct:free"
+  api_key: "your-openrouter-api-key"
+
+REASONING_MODEL:
+  base_url: "https://openrouter.ai/api/v1"
+  model: "meta-llama/llama-3.2-1b-instruct:free"
+  api_key: "your-openrouter-api-key"
+
+VISION_MODEL:
+  base_url: "https://openrouter.ai/api/v1"
+  model: "meta-llama/llama-3.2-1b-instruct:free"
+  api_key: "your-openrouter-api-key"
+```
+
+#### Method 2: Using Environment Variables (Recommended)
+Configure in your `.env` file:
+```ini
+# OpenRouter API Key
+OPENROUTER_API_KEY=your-openrouter-api-key
+
+# Basic Model Configuration
+BASIC_MODEL__MODEL=meta-llama/llama-3.2-1b-instruct:free
+BASIC_MODEL__API_KEY=your-openrouter-api-key
+BASIC_MODEL__BASE_URL=https://openrouter.ai/api/v1
+
+# Reasoning Model Configuration
+REASONING_MODEL__MODEL=meta-llama/llama-3.2-1b-instruct:free
+REASONING_MODEL__API_KEY=your-openrouter-api-key
+REASONING_MODEL__BASE_URL=https://openrouter.ai/api/v1
+
+# Vision Model Configuration
+VISION_MODEL__MODEL=meta-llama/llama-3.2-1b-instruct:free
+VISION_MODEL__API_KEY=your-openrouter-api-key
+VISION_MODEL__BASE_URL=https://openrouter.ai/api/v1
 ```
 
 Note: The available models and their exact names may change over time. Please verify the currently available models and their correct identifiers in [OpenRouter's official documentation](https://openrouter.ai/docs).

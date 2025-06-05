@@ -49,12 +49,19 @@ app = FastAPI(
 )
 
 # Add CORS middleware
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+allowed_origins = [
+    "http://localhost:3000",  # Local development
+    "http://127.0.0.1:3000",  # Local development alternative
+    frontend_url,  # Production frontend URL
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 graph = build_graph_with_memory()
