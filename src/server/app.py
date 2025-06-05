@@ -73,6 +73,12 @@ async def health_check():
     return {"status": "healthy", "service": "DeerFlow API"}
 
 
+@app.get("/api/health")
+async def api_health_check():
+    """Alternative health check endpoint for Railway deployment."""
+    return {"status": "healthy", "service": "DeerFlow API"}
+
+
 @app.post("/api/chat/stream")
 async def chat_stream(request: ChatRequest):
     thread_id = request.thread_id
