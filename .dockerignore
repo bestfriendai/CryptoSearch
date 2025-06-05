@@ -51,3 +51,7 @@ examples/
 assets/
 tests/
 *.log
+
+# Railway specific
+.railway/
+railway.toml

@@ -1,17 +1,26 @@
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+FROM python:3.12-slim
 
-# Install uv.
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy the application into the container.
-COPY . /app
+# Copy requirements first for better caching
+COPY requirements.txt .
 
-# Install the application dependencies.
-RUN uv sync --locked
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8080
 
-# Run the application.
-CMD ["sh", "-c", "cd /app && uv run python server.py --host 0.0.0.0 --port ${PORT:-8080}"]
+# Run the application
+CMD ["python", "server.py", "--host", "0.0.0.0", "--port", "8080"]
