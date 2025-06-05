@@ -7,6 +7,7 @@ Server script for running the DeerFlow API.
 
 import argparse
 import logging
+import os
 import signal
 import sys
 import uvicorn
@@ -47,8 +48,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--port",
         type=int,
-        default=8000,
-        help="Port to bind the server to (default: 8000)",
+        default=int(os.getenv("PORT", 8000)),
+        help="Port to bind the server to (default: PORT env var or 8000)",
     )
     parser.add_argument(
         "--log-level",
@@ -67,6 +68,9 @@ if __name__ == "__main__":
 
     try:
         logger.info(f"Starting DeerFlow API server on {args.host}:{args.port}")
+        logger.info(f"Environment: APP_ENV={os.getenv('APP_ENV', 'not set')}")
+        logger.info(f"Port from env: PORT={os.getenv('PORT', 'not set')}")
+        logger.info(f"Python path: {sys.path}")
         uvicorn.run(
             "src.server:app",
             host=args.host,
