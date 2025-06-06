@@ -367,3 +367,21 @@ async def rag_resources(request: Annotated[RAGResourceRequest, Query()]):
     if retriever:
         return RAGResourcesResponse(resources=retriever.list_resources(request.query))
     return RAGResourcesResponse(resources=[])
+
+
+@app.post("/api/admin/reload-llm")
+async def reload_llm_configuration():
+    """Force reload LLM configuration. Useful for updating API keys without restart."""
+    try:
+        from src.llms.llm import reload_all_llms
+        from src.config.loader import clear_config_cache
+
+        # Clear both config and LLM caches
+        clear_config_cache()
+        reload_all_llms()
+
+        logger.info("LLM configuration reloaded successfully")
+        return {"status": "success", "message": "LLM configuration reloaded"}
+    except Exception as e:
+        logger.exception(f"Error reloading LLM configuration: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to reload LLM configuration: {str(e)}")

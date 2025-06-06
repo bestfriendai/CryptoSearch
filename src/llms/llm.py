@@ -65,21 +65,35 @@ def clear_llm_cache():
     _llm_cache.clear()
 
 
+def reload_all_llms():
+    """Force reload all LLM instances with current configuration."""
+    clear_llm_cache()
+    # Pre-load all LLM types to ensure they're available
+    for llm_type in ["basic", "reasoning", "vision"]:
+        get_llm_by_type(llm_type, force_reload=True)
+
+
 def get_llm_by_type(
     llm_type: LLMType,
+    force_reload: bool = False,
 ) -> ChatOpenAI:
     """
     Get LLM instance by type. Returns cached instance if available.
-    """
-    if llm_type in _llm_cache:
-        return _llm_cache[llm_type]
 
-    conf = load_yaml_config(
-        str((Path(__file__).parent.parent.parent / "conf.yaml").resolve())
-    )
-    llm = _create_llm_use_conf(llm_type, conf)
-    _llm_cache[llm_type] = llm
-    return llm
+    Args:
+        llm_type: The type of LLM to get
+        force_reload: If True, forces reloading even if cached instance exists
+    """
+    # Force reload if requested or if cache is empty
+    if force_reload or llm_type not in _llm_cache:
+        conf = load_yaml_config(
+            str((Path(__file__).parent.parent.parent / "conf.yaml").resolve())
+        )
+        llm = _create_llm_use_conf(llm_type, conf)
+        _llm_cache[llm_type] = llm
+        return llm
+
+    return _llm_cache[llm_type]
 
 
 # In the future, we will use reasoning_llm and vl_llm for different purposes
