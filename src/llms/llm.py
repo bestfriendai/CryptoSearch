@@ -28,6 +28,9 @@ def _get_env_llm_conf(llm_type: str) -> Dict[str, Any]:
     for key, value in os.environ.items():
         if key.startswith(prefix):
             conf_key = key[len(prefix) :].lower()
+            # Map openai_api_key to api_key for ChatOpenAI compatibility
+            if conf_key == "openai_api_key":
+                conf_key = "api_key"
             conf[conf_key] = value
     return conf
 
@@ -48,21 +51,26 @@ def _create_llm_use_conf(llm_type: LLMType, conf: Dict[str, Any]) -> ChatOpenAI:
     merged_conf = {**llm_conf, **env_conf}
 
     # If no configuration found, try fallback to OPENROUTER_API_KEY
-    if not merged_conf or not merged_conf.get("openai_api_key"):
+    if not merged_conf or not merged_conf.get("api_key"):
         openrouter_key = os.getenv("OPENROUTER_API_KEY")
         if openrouter_key:
             logger.info(f"Using fallback OpenRouter configuration for {llm_type}")
             merged_conf = {
                 "model": "meta-llama/llama-3.2-1b-instruct:free",
-                "openai_api_key": openrouter_key,
+                "api_key": openrouter_key,
                 "base_url": "https://openrouter.ai/api/v1",
                 **merged_conf  # Keep any existing config
             }
 
-    if not merged_conf or not merged_conf.get("openai_api_key"):
+    # Also check for openai_api_key and convert to api_key
+    if merged_conf.get("openai_api_key") and not merged_conf.get("api_key"):
+        merged_conf["api_key"] = merged_conf.pop("openai_api_key")
+
+    if not merged_conf or not merged_conf.get("api_key"):
         raise ValueError(f"No API key found for LLM type: {llm_type}. Please set OPENROUTER_API_KEY or {llm_type.upper()}_MODEL__OPENAI_API_KEY")
 
     logger.info(f"Creating LLM for type: {llm_type} with model: {merged_conf.get('model')}, base_url: {merged_conf.get('base_url')}")
+    logger.info(f"API key present: {'✓' if merged_conf.get('api_key') else '✗'}")
 
     # Add default headers for OpenRouter if using OpenRouter base URL
     if merged_conf.get("base_url") == "https://openrouter.ai/api/v1":
@@ -72,6 +80,10 @@ def _create_llm_use_conf(llm_type: LLMType, conf: Dict[str, Any]) -> ChatOpenAI:
             "X-Title": "CryptoSearch",
         })
         merged_conf["default_headers"] = default_headers
+
+    # Log the final configuration (without exposing the API key)
+    safe_conf = {k: v if k != "api_key" else "***" for k, v in merged_conf.items()}
+    logger.info(f"Final LLM configuration: {safe_conf}")
 
     return ChatOpenAI(**merged_conf)
 
