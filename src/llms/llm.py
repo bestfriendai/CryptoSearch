@@ -47,7 +47,22 @@ def _create_llm_use_conf(llm_type: LLMType, conf: Dict[str, Any]) -> ChatOpenAI:
     if not merged_conf:
         raise ValueError(f"Unknown LLM Conf: {llm_type}")
 
+    # Add default headers for OpenRouter if using OpenRouter base URL
+    if merged_conf.get("base_url") == "https://openrouter.ai/api/v1":
+        default_headers = merged_conf.get("default_headers", {})
+        default_headers.update({
+            "HTTP-Referer": "https://avaxsearch.vercel.app",
+            "X-Title": "CryptoSearch",
+        })
+        merged_conf["default_headers"] = default_headers
+
     return ChatOpenAI(**merged_conf)
+
+
+def clear_llm_cache():
+    """Clear the LLM cache to force reloading of configurations."""
+    global _llm_cache
+    _llm_cache.clear()
 
 
 def get_llm_by_type(

@@ -34,6 +34,12 @@ def process_dict(config: Dict[str, Any]) -> Dict[str, Any]:
 _config_cache: Dict[str, Dict[str, Any]] = {}
 
 
+def clear_config_cache():
+    """Clear the configuration cache to force reloading of configurations."""
+    global _config_cache
+    _config_cache.clear()
+
+
 def load_yaml_config(file_path: str) -> Dict[str, Any]:
     """Load and process YAML configuration file."""
     # 如果文件不存在，返回{}
