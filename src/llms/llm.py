@@ -1,9 +1,10 @@
-# Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
+b# Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
 # SPDX-License-Identifier: MIT
 
 from pathlib import Path
 from typing import Any, Dict
 import os
+import logging # Added import
 
 from langchain_openai import ChatOpenAI
 
@@ -12,6 +13,8 @@ from src.config.agents import LLMType
 
 # Cache for LLM instances
 _llm_cache: dict[LLMType, ChatOpenAI] = {}
+
+logger = logging.getLogger(__name__) # Added logger
 
 
 def _get_env_llm_conf(llm_type: str) -> Dict[str, Any]:
@@ -46,6 +49,8 @@ def _create_llm_use_conf(llm_type: LLMType, conf: Dict[str, Any]) -> ChatOpenAI:
 
     if not merged_conf:
         raise ValueError(f"Unknown LLM Conf: {llm_type}")
+
+    logger.info(f"Creating LLM for type: {llm_type} with merged_conf: {merged_conf}") # Added logging
 
     # Add default headers for OpenRouter if using OpenRouter base URL
     if merged_conf.get("base_url") == "https://openrouter.ai/api/v1":
