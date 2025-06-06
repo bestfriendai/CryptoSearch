@@ -46,9 +46,11 @@ def _create_llm_use_conf(llm_type: LLMType, conf: Dict[str, Any]) -> ChatOpenAI:
         raise ValueError(f"Invalid LLM Conf: {llm_type}")
     # Get configuration from environment variables
     env_conf = _get_env_llm_conf(llm_type)
+    logger.info(f"Environment config for {llm_type}: {env_conf}")
 
     # Merge configurations, with environment variables taking precedence
     merged_conf = {**llm_conf, **env_conf}
+    logger.info(f"Merged config for {llm_type}: {merged_conf}")
 
     # If no configuration found, try fallback to OPENROUTER_API_KEY
     if not merged_conf or not merged_conf.get("api_key"):
@@ -56,7 +58,7 @@ def _create_llm_use_conf(llm_type: LLMType, conf: Dict[str, Any]) -> ChatOpenAI:
         if openrouter_key:
             logger.info(f"Using fallback OpenRouter configuration for {llm_type}")
             merged_conf = {
-                "model": "meta-llama/llama-3.2-1b-instruct:free",
+                "model": "google/gemini-2.5-pro-preview",
                 "api_key": openrouter_key,
                 "base_url": "https://openrouter.ai/api/v1",
                 **merged_conf  # Keep any existing config
